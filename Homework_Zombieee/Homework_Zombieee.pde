@@ -42,7 +42,7 @@ void draw(){
   fill(255);
    if(state == -1 ) {
    //story background
-   text("Press'SHIFT' to start" ,270,350);
+   text("Press'SPACE' to start" ,270,350);
    text("Press'ESC' to exit",270,390);
   
    }
@@ -52,7 +52,7 @@ void draw(){
    text("A virus called 'homework' is raging in the MFADT town." ,20,350);
    text("Everyone around you become zombies. Now you have ",20,390);
    text("to get rid of it.",20,430);
-   text(">>>> press 'SHIFT' to continue",260,470);
+   text(">>>> press 'SPACE' to continue",260,470);
    }
   
     if(state == 1 ) {
@@ -66,7 +66,7 @@ void draw(){
     }
     if(state == 2 ) {
    image(pic4,0,0,500,500);
-      text("You go out with your dog, but it slip into " ,20,350);
+      text("You go out with your dog, but it slips into " ,20,350);
       text("a building. you will? ",20,390);
       text("<<< Follow it",20,440);
       text(">>> It is too dangerous, ",250,440);
@@ -116,26 +116,26 @@ void draw(){
       textFont(font2);
       text("You DIE!",20,400); 
       textFont(font1);
-      text("Press 'SHIFT' to restart the game",260,470);
+      text("Press 'SPACE' to restart the game",230,470);
     }
     if(state == 9 ) {
       image(end7,0,0,500,500);
       text("Your dog finds a vaccine! with the vaccine you can " ,50,350);
       text(" defeat the virus! Congrats you save the town! ",50,390);
-       text("Press 'SHIFT' to restart the game",260,470);
+       text("Press 'SPACE' to restart the game",230,470);
     
     }
     if(state == 10 ) {
       image(end2,0,0,500,500);
       text("Oh no! He was infected with the virus! now you " ,20,350);
       text("are infected as well!",20,390);
-       text("Press 'SHIFT' to restart the game",260,470);
+       text("Press 'SPACE' to restart the game",230,470);
     }
     if(state == 11 ) {
       image(end2,0,0,500,500);
       text("But you friend notice you, he already become a " ,20,350);
       text("zombie and runs at you! You DIE  ",20,390);
-      text("Press 'SHIFT' to restart the game",260,470);
+      text("Press 'SPACE' to restart the game",230,470);
   
     }
     if(state == 12 ) {
@@ -145,39 +145,40 @@ void draw(){
        textFont(font2);
       text(" DIE ",20,400);
        textFont(font1);
-      text("Press 'SHIFT' to restart the game",260,470);
+      text("Press 'SPACE' to restart the game",230,470);
      
     }
     if(state == 13 ) {
       image(end6,0,0,500,500);
       text("Oh no, the zombie runs at you and bits you." ,20,350);
       text("You are infected with the virus and become a zombie." ,20,390);
-       text("Press 'SHIFT' to restart the game",260,470);
+       text("Press 'SPACE' to restart the game",230,470);
     }
     if(state == 14 ) {
       image(end5,0,0,500,500);
       text("You select the wrong way, and become exhausted. " ,20,350);
       text("Finally the zombies find you.",20,390);
-      text("Press 'SHIFT' to restart the game",260,470);
+      text("Press 'SPACE' to restart the game",230,470);
       
     }
     if(state == 15 ) {
           image(end8,0,0,500,500);
       text("It is the way out! YOU flee from MFADT town!" ,20,350);
       text("No more horrible homework!",20,390);
-      text("Press 'SHIFT' to restart the game",260,470);
+      text("Press 'SPACE' to restart the game",230,470);
     }
 }
 
 void keyPressed() {
-   if (keyPressed&&(key==CODED)){
-   if(keyCode == SHIFT) {
+   
+   if(key == ' ') {
      if (state == -1) {
       state=0;}
       else if (state == 0) {
       state=1;
     }
  }
+ if (keyPressed&&(key==CODED)){
    if(keyCode == ESC) {
    exit();
    }
@@ -209,11 +210,10 @@ void keyPressed() {
         }
         }};
         if(state > 7 && state <16){
-          if(keyPressed&&(key==CODED)){
-          if(keyCode == SHIFT) {
+          if(key == ' ') {
             state = -1 ;
         }
-       }
+       
       }
      }
    }
