@@ -24,21 +24,23 @@ void draw(){
      
      
      if (mousePressed){
-       cir=0;
-     }else{
-       
+      cir=0;
+       posX = append(posX, mouseX); 
+       posY = append(posY, mouseY);
+     }
+       for(int arrycount=0; arrycount< posX.length; arrycount++){
        for(int i=0;i<count; i++){
          if (i==cir){noFill();
         stroke(255,255,255);
-        ellipse(px,py,radius[cir],radius[cir]);
-        }
+        ellipse(posX[arrycount],posY[arrycount],radius[cir],radius[cir]);
+        }}
       //else{
       //  noFill();
       //  stroke(100,100);
       //  ellipse(width/2,height/2,radius[i],radius[i]);}
       }
   //}
-  cir=(cir+1)%(count);}
+  cir=(cir+1)%(count);
 }
 
 void mousePressed(){
