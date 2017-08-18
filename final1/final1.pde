@@ -1,16 +1,30 @@
+//base on the code form https://github.com/kctess5/Processing-Beat-Detection
+
+import processing.serial.*;
+
 import ddf.minim.*;
 import ddf.minim.analysis.*;
 
 Minim minim;
 AudioPlayer song;
 FFT fft;
+import processing.serial.*;
+
+int bgcolor;           // Background color
+int fgcolor;           // Fill color
+Serial myPort;                       // The serial port
+int[] serialInArray = new int[3];    // Where we'll put what we receive
+int serialCount = 0;                 // A count of how many bytes we receive
+int xpos, ypos;                // Starting position of the ball
+boolean firstContact = false;        // Whether we've heard from the microcontroller
+
 
 //Star[] stars=new Star[800];
 ArrayList<Rip> ripples;
 //ArrayList<Floors> floors;
 float speed;
 boolean isblack;
-;
+float  oldbandValue = 0;
 //Floors[] floors=new Floors[15];
 //color Coll;
 float specLow = 0.05; // 3%
@@ -26,27 +40,28 @@ float scoreHi = 0;
 float oldScoreLow = scoreLow;
 float oldScoreMid = scoreMid;
 float oldScoreHi = scoreHi;
-
+float scoreGlobal;
 // Valeur d'adoucissement
 float scoreDecreaseRate = 25;
 
 //Lignes qui apparaissent sur les cotés
-int nbFloors = 500;
+int nbFloors = 80;
 Floor[] floors;
 int nbCubes;
 Cube[] cubes;
 
+//Mover mover;
 
 void setup() {
+  //myport = 
   isblack=true;
   size(1000, 1000, P3D);
 
-  //for (int i =0; i<stars.length;i++){
-  //stars[i]=new Star();
-
-  //}
+  xpos = 2;
+  ypos = 2;
+  println(Serial.list());
   ripples = new ArrayList<Rip>();
-  ripples.add(new Rip(500, 600, color(255)));
+  ripples.add(new Rip(500, 600, color(255),800));
 
   //music
   minim=new Minim(this);
@@ -65,6 +80,10 @@ void setup() {
   for (int i = 0; i < nbFloors; i++) {
     floors[i] = new Floor(width/2, height, width, 10);
   }
+
+  //pcom
+  String portName = Serial.list()[3];
+  myPort = new Serial(this, portName, 9600);
 }
 
 void draw() {
@@ -147,7 +166,7 @@ void draw() {
 
   //Volume pour toutes les fréquences à ce moment, avec les sons plus haut plus importants.
   //Cela permet à l'animation d'aller plus vite pour les sons plus aigus, qu'on remarque plus
-  float scoreGlobal = 0.66*scoreLow + 0.8*scoreMid + 1*scoreHi;
+  scoreGlobal = 0.66*scoreLow + 0.8*scoreMid + 1*scoreHi;
 
   //Couleur subtile de background
   //background(scoreLow/100, scoreMid/100, scoreHi/100);
@@ -158,7 +177,16 @@ void draw() {
     //scoreMid*=0.3;
     //scoreHi*=0.3;
     isblack=false;
+    //for (int i = 0; i < nbFloors; i+=4) {
+    //  floors[i] = new Floor(0, height/2, 10, height);
+    //}
+
+    ////Floors droits
+    //for (int i = 1; i < nbFloors; i+=4) {
+    //  floors[i] = new Floor(width, -height/2, 10, height);
+    //}
   }
+
 
   //float previousBandValue = fft.getBand(0);
 
@@ -179,8 +207,14 @@ void draw() {
     stroke(100+scoreLow, 100+scoreMid, 100+scoreHi, 255-i);
     if (isblack) {
       stroke(0, 0, 0, 255-i);
-      ;
+      
     }
+     if (xpos*ypos <40000 && xpos*ypos>2500) {
+      stroke(random(150, 255), 200+((xpos-600)/50* oldbandValue), 230-((ypos-600)/50* oldbandValue), 240-(70* oldbandValue));
+      //println(xpos,ypos);
+    } else if (xpos*ypos >40000) { 
+      stroke(250- oldbandValue/24, 120-((xpos-600)/50* oldbandValue), 50-((ypos-600)/50* oldbandValue), 240-(70* oldbandValue));
+    };
     strokeWeight(3);
     line(0, height, dist*(i-1), 0, height, dist*i);
     line(width, height, dist*(i-1), width, height, dist*i);
@@ -195,7 +229,6 @@ void draw() {
     float intensity = fft.getBand(i%((int)(fft.specSize()*specHi)));
     floors[i].display(scoreLow, scoreMid, scoreHi, intensity, scoreGlobal, isblack);
   }
-
   //ripple
   for (int i = ripples.size()-1; i >= 0; i--) { 
     // An ArrayList doesn't know what it is storing so we have to cast the object coming out
@@ -216,8 +249,9 @@ void draw() {
   {
     float bandValue = fft.getBand(i);
     cubes[i].display(scoreLow, scoreMid, scoreHi, bandValue, scoreGlobal, isblack);
+    oldbandValue =bandValue;
+    //cubes[i].update();
   }
-
 
 
   // framecount
@@ -225,13 +259,54 @@ void draw() {
   //println(frameCount);
 }
 
+void serialEvent(Serial myPort) {
+  // read a byte from the serial port:
+  int inByte = myPort.read();
+  // if this is the first byte received, and it's an A, clear the serial
+  // buffer and note that you've had first contact from the microcontroller.
+  // Otherwise, add the incoming byte to the array:
+  if (firstContact == false) {
+    if (inByte == 'A') {
+      myPort.clear();          // clear the serial port buffer
+      firstContact = true;     // you've had first contact from the microcontroller
+      myPort.write('A');       // ask for more
+    }
+  } else {
+    // Add the latest byte from the serial port to array:
+    serialInArray[serialCount] = inByte;
+    serialCount++;
 
+    // If we have 3 bytes:
+    if (serialCount > 2 ) {
+      //if( serialInArray[0]>50 || serialInArray[1]>50){
+      xpos = serialInArray[0];
+      ypos = serialInArray[1];
+      //}
+      if (isblack && xpos*ypos >2500) {
+        ripples.add(new Rip(500, 600, color(100+xpos, 100+xpos, 100+xpos),ypos));
+      }
+    
+      println(xpos + "\t" + ypos + "\t" + fgcolor);
 
-
-
-
-void mousePressed() {
-  // A new ball object is added to the ArrayList (by default to the end)
-  ripples.add(new Rip(500, 600, color(100+scoreLow, 100+scoreMid, 100+scoreHi)));
-  //println(mouseX, mouseY);
+      // Send a capital A to request new sensor readings:
+      myPort.write('A');
+      // Reset serialCount:
+      serialCount = 0;
+    }
+  }
 }
+
+
+
+
+//void mousePressed() {
+//  //background(scoreLow*0.67, scoreMid*0.67, scoreHi*0.67);
+//  //cubes[(int)random(nbCubes)] = new Cube(mouseX, mouseY);
+//  // A new ball object is added to the ArrayList (by default to the end)
+//  //println(mouseX, mouseY);
+//  //for (int i = 0; i < nbCubes; i++) {
+//  // cubes[i] = new Cube();
+//  // //cubes[i].update();
+//  //}
+//  ripples.add(new Rip(500, 600, color(100+scoreLow, 100+scoreMid, 100+scoreHi)));
+//}

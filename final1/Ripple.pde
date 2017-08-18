@@ -5,21 +5,24 @@ float ypos;
 float zr;
 float life=400;
 int countnum;
-float startingZ = -5000;
+float startingZ = -6000;
 float maxZ = 50;
 //int[] radius=new int[50];
 int count=0;
 int radius=10;
 
-Rip(float _xpos, float _ypos, color c){
+Rip(float _xpos, float _ypos, color c,int ra){
   xpos=_xpos;
   ypos=_ypos;
-  zr = -5000;
+  zr = -6000;
+  //100+scoreLow, 100+scoreMid, 100+scoreHi
+  //Col=color(100+scoreLow, 100+scoreMid, 100+scoreHi);
   Col=c;
+  radius=800;
   //println(Col);
   }
   void move(){
-      radius=800;
+      
       //count= (count+1)% 50;
     }
      boolean finished() {
@@ -34,11 +37,12 @@ Rip(float _xpos, float _ypos, color c){
   void display(float intensity, float scoreGlobal){
   //for(int i=0;i<49; i++){
         //noFill();
-        stroke(255,100);
+        stroke(Col,100);
         noFill();
         pushMatrix();
         translate(0, 0, zr);
         //ellipse(500,500,500,500);
+        
         ellipse(xpos,ypos,radius,radius);
         popMatrix();
         zr+= (1+(intensity/5)+(pow((scoreGlobal/150), 2)));
